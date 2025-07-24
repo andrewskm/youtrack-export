@@ -1,0 +1,19 @@
+[build-system]
+requires = ['setuptools>=42', 'wheel']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'youtrack-export'
+version = '0.1.0'
+description = 'A project for extracting YouTrack issue data including custom attributes, comments, and attachments.'
+authors = [{ name = 'Keith Andrews', email = 'keith@geerservices.com' }]
+dependencies = ['requests']
+readme = 'README.md'
+license = { file = 'LICENSE' }
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.pytest.ini_options]
+testpaths = ['tests']
