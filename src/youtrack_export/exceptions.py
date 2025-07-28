@@ -13,3 +13,6 @@ class AuthenticationError(YouTrackError):
 class APIError(YouTrackError):
     """Raised when API requests fail."""
     pass
+class ExportError(YouTrackError):
+    """Raised when export features fail."""
+    pass

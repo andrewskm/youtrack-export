@@ -4,9 +4,15 @@ Handles environment variables and user input.
 """
 
 import os
-import questionary
 from pathlib import Path
 from typing import Optional
+
+import questionary
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+
+console = Console()
 
 
 class ConfigManager:
@@ -15,13 +21,18 @@ class ConfigManager:
     token: Optional[str] = None
 
     def __init__(self, env_file: str = '.env'):
+        """
+        Initialize the Configuration Manager.
+        Args:
+            env_file (str): Path to the .env file to store credentials (!! should be a file that is also in the gitignore !!).
+        """
         self.env_file = Path(env_file)
         self._load_env_file()
 
     def _load_env_file(self):
         """Load environment variables from .env file."""
         if self.env_file.exists():
-            print('Loading environment configuration...')
+            console.print('Loading environment configuration...', style='dim')
             with open(self.env_file, 'r') as f:
                 for line in f:
                     line = line.strip()
@@ -37,24 +48,32 @@ YOUTRACK_TOKEN={self.token}
 """
         with open(self.env_file, 'w') as f:
             f.write(env_content)
-        print(f'Credentials saved to {self.env_file}')
+        console.print(f'Credentials saved to {self.env_file} \n', style='green')
 
     def get_youtrack_url(self) -> Optional[str]:
-        """Get YouTrack URL from environment or prompt user."""
+        """
+        Get YouTrack URL from environment or prompt user.
+        Returns:
+            Optional[str]: YouTrack URL.
+        """
         self.base_url = os.getenv('YOUTRACK_URL')
         if not self.base_url:
             self.base_url = self._prompt_for_url()
             if self.base_url:
-               self._save_credentials()
+                self._save_credentials()
         return self.base_url
 
     def get_youtrack_token(self) -> Optional[str]:
-        """Get YouTrack token from environment or prompt user."""
+        """
+        Get YouTrack token from environment or prompt user.
+        Returns:
+            Optional[str]: YouTrack token
+        """
         self.token = os.getenv('YOUTRACK_TOKEN')
         if not self.token:
             self.token = self._prompt_for_token()
             if self.token:
-               self._save_credentials()
+                self._save_credentials()
         return self.token
 
     def _save_credentials(self):
@@ -64,44 +83,52 @@ YOUTRACK_TOKEN={self.token}
             self._save_env_file()
 
     @staticmethod
-    def _prompt_for_url() -> Optional[str]:
-        """Prompt user for YouTrack URL."""
+    def _prompt_for_url() -> str:
+        """
+        Prompt user for their YouTrack instance URL.
+        Returns:
+            str: YouTrack instance URL.
+        """
 
-        print("\nYouTrack Configuration")
-        print("=" * 30)
+        console.print(Markdown('## YouTrack Configuration'), style='bold #8265FA')
+
         url = questionary.text(
-            "Enter your YouTrack URL (e.g., https://youtrack.example.com):",
-            qmark="🌐"
+            'Enter your YouTrack URL:',
+            qmark='🌐',
+            instruction='(e.g., https://youtrack.example.com)',
+            validate=lambda text: True if text.strip() else "URL to your YouTrack instance is required!"
         ).ask()
 
-        if not url:
-            print("URL is required!")
-            return None
+        if url is None:
+            raise KeyboardInterrupt
 
-        # Validate URL format
+        # Parse the URL format
         if not url.startswith(('http://', 'https://')):
             url = f'https://{url}'
 
         return url.strip('/')
 
     @staticmethod
-    def _prompt_for_token() -> Optional[str]:
-        """Prompt user for YouTrack API token."""
-        print('\nAPI Token')
-        print('=' * 30)
-        print('You can find your API token in YouTrack:')
-        print('- Go to Settings > Personal > Tokens')
-        print('- Create a new token with appropriate permissions')
-        print('- Copy the token and paste it below')
-        print()
+    def _prompt_for_token() -> str:
+        """
+        Prompt user for YouTrack API token.
+        Returns:
+            str: YouTrack API token.
+        """
+
+        panel_md = '''**How you can find your API token in YouTrack:**\n
+- Go to Settings > Personal > Tokens\n 
+- Create a new token with appropriate permissions\n 
+- Copy the token and paste it below\n'''
+        console.print(Panel(Markdown(panel_md), title='YouTrack API Token', style='blue', width=100))
 
         token = questionary.password(
-            "Enter your YouTrack API token:",
-            qmark="🔑"
+            'Enter your YouTrack API token:',
+            qmark='🔑',
+            validate=lambda text: True if text.strip() else "API token is required!"
         ).ask()
 
-        if not token:
-            print('API token is required!')
-            return None
+        if token is None:
+            raise KeyboardInterrupt
 
         return token

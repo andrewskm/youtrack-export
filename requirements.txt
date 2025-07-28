@@ -1,2 +1,5 @@
 requests
 questionary
+rich
+aiohttp
+python-slugify
