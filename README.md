@@ -1,6 +1,6 @@
 # YouTrack Export
 
-A project that allows the extract of full YouTrack issue data including custom attributes, comments, and attachments.
+A project that allows the extraction of full YouTrack issue data including custom attributes, comments, and attachments.
 
 ## How to Run
 
@@ -20,8 +20,8 @@ A project that allows the extract of full YouTrack issue data including custom a
 - Can select all projects or specific projects to export
 - Exports all issue fields including custom project fields
 - Only extract unresolved tasks 
-- Apply custom query to be appended to the request
 - Extracts comments and attachments
+- Apply custom query to be appended to the request (future)
 
 
 ## Storage 

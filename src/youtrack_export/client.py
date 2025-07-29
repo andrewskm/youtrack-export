@@ -95,7 +95,7 @@ class YouTrackClient:
         }
 
         async with client_session.post(f'{self.base_url}/api/issuesGetter/count?fields=count', json=data, headers=self.headers) as response:
-            results = await self._session_response(response)
+            results = await self._session_json_response(response)
             return results.get('count', None)
 
     async def get_issues(self, client_session: aiohttp.ClientSession, project: dict[str, str], export_items: list[str], limit: int = 100, skip: int = 0) -> list:
@@ -118,15 +118,26 @@ class YouTrackClient:
         }
 
         async with client_session.get(f'{self.base_url}/api/issues', params=params, headers=self.headers, timeout=15) as response:
-            return await self._session_response(response)
+            return await self._session_json_response(response)
 
-    def get_issue_attachments(self, project_id, issue) -> list:
-        """Get the attachments of a specific issue."""
-        # /api/admin/projects/{projectID}/issues/{issueID}
-        pass
+    def get_issue_attachment(self, attachment: dict):
+        """
+        Get the attachments of a specific issue.
+        Args:
+            attachment (dict): A issue attachment dictionary.
+        Returns:
+            Response content for the attachment file.
+        """
+        url = attachment.get('url')
+        if not url.startswith('http'):
+            url = self.base_url.rstrip('/') + '/' + url.lstrip('/')
+
+        response = self.session.get(url, timeout=30)
+        response.raise_for_status()
+        return response.content
 
     @staticmethod
-    def _session_response(response):
+    def _session_json_response(response):
         """
         Parse the client_session response.
         Args:
@@ -171,7 +182,9 @@ class YouTrackClient:
         """
         fields = [
             'id,idReadable,isDraft,summary,description,created,updated,resolved',
-            'tags(id,name,color),reporter(email,fullName),parent(id,direction,linkType(name),issues(id)),subtasks(id,direction,linkType(name),issues(id)),links(id,direction,linkType(name),issues(id))',
+            'tags(id,name,color),reporter(email,fullName)',
+            'parent(id,direction,linkType(name),issues(id,idReadable,resolved)),subtasks(id,direction,linkType(name),issues(id,idReadable,resolved))',
+            'links(id,direction,linkType(name),issues(id,idReadable,resolved))',
             'customFields(id,name,value(id,name,presentation,text))'
         ]
 
