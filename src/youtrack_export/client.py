@@ -137,7 +137,7 @@ class YouTrackClient:
         return response.content
 
     @staticmethod
-    def _session_json_response(response):
+    async def _session_json_response(response):
         """
         Parse the client_session response.
         Args:
@@ -146,9 +146,9 @@ class YouTrackClient:
             Response from YouTrack API.
         """
         if response.status == 200:
-            return response.json()
+            return await response.json()
         if response.status == 400:
-            json = response.json()
+            json = await response.json()
             raise Exception(f'API Error: {json.get('error')}: {json.get('error_description')}')
         else:
             raise Exception(f'Failed to receive a valid API response: status {response.status}')
