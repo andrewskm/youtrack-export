@@ -91,7 +91,7 @@ class YouTrackClient:
             int: Number of issues.
         """
         data = {
-            'query': f'project: "{project.get('name')}" {self._parse_query(export_items)}',  # todo - allow custom query along with this
+            'query': f'project: {project.get('name')} {self._parse_query(export_items)}',  # todo - allow custom query along with this
         }
 
         async with client_session.post(f'{self.base_url}/api/issuesGetter/count?fields=count', json=data, headers=self.headers) as response:
@@ -111,7 +111,7 @@ class YouTrackClient:
             list: List of issues is json.
         """
         params = {
-            'query': f'project: "{project.get('name')}" {self._parse_query(export_items)}',  # todo - allow custom query along with this
+            'query': f'project: {project.get('name')} {self._parse_query(export_items)}',  # todo - allow custom query along with this
             'fields': self._parse_fields_from_export_items(export_items),
             '$skip': skip,
             '$top': limit,
