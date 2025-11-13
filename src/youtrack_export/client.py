@@ -90,13 +90,14 @@ class YouTrackClient:
         Returns:
             int: Number of issues.
         """
-        data = {
-            'query': f'project: "{project.get('name')}" {self._parse_query(export_items)}',  # todo - allow custom query along with this
-        }
 
-        async with client_session.post(f'{self.base_url}/api/issuesGetter/count?fields=count', json=data, headers=self.headers) as response:
-            results = await self._session_json_response(response)
-            return results.get('count', None)
+        payload = {
+            'query': f'#{{{project.get('name')}}} {self._parse_query(export_items)}',  # todo - allow custom query along with this
+        }
+        
+        async with client_session.post(f'{self.base_url}/api/issuesGetter/count?fields=count', json=payload, headers=self.headers) as response:
+            results = await self._session_json_response(response) 
+            return results.get('count', None)            
 
     async def get_issues(self, client_session: aiohttp.ClientSession, project: dict[str, str], export_items: list[str], limit: int = 100, skip: int = 0) -> list:
         """
@@ -111,7 +112,7 @@ class YouTrackClient:
             list: List of issues is json.
         """
         params = {
-            'query': f'project: "{project.get('name')}" {self._parse_query(export_items)}',  # todo - allow custom query along with this
+            'query': f'#{{{project.get('name')}}} {self._parse_query(export_items)}',  # todo - allow custom query along with this
             'fields': self._parse_fields_from_export_items(export_items),
             '$skip': skip,
             '$top': limit,
@@ -145,13 +146,8 @@ class YouTrackClient:
         Returns:
             Response from YouTrack API.
         """
-        if response.status == 200:
-            return response.json()
-        if response.status == 400:
-            json = response.json()
-            raise Exception(f'API Error: {json.get('error')}: {json.get('error_description')}')
-        else:
-            raise Exception(f'Failed to receive a valid API response: status {response.status}')
+        response.raise_for_status()
+        return response.json()       
 
     @staticmethod
     def _parse_query(export_items: list[str]) -> str:

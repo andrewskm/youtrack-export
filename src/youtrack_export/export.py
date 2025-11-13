@@ -128,6 +128,10 @@ class Export:
             # if the issues total is -1, the API is loading, so we need to wait for the count to be ready
             for attempt in range(1, self.__polling['max_attempts'] + 1):
                 issues_total = await self.client.get_project_issue_count(self.__client_session, project, self.export_items)
+                # if the return is None, the count does not exists
+                if issues_total == None:
+                    return 0
+                
                 if issues_total != -1:
                     progress.update(task, description=f'Issues count complete.', total=issues_total, completed=0)
 
