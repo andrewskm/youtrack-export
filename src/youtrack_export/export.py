@@ -13,7 +13,7 @@ from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeEl
 from slugify import slugify
 
 from src.youtrack_export.client import YouTrackClient
-from youtrack_export.exceptions import ExportError
+from src.youtrack_export.exceptions import ExportError
 
 console = Console()
 
