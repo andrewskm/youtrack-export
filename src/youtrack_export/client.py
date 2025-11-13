@@ -138,7 +138,7 @@ class YouTrackClient:
         return response.content
 
     @staticmethod
-    def _session_json_response(response):
+    async def _session_json_response(response):
         """
         Parse the client_session response.
         Args:
@@ -147,7 +147,7 @@ class YouTrackClient:
             Response from YouTrack API.
         """
         response.raise_for_status()
-        return response.json()       
+        return await response.json()       
 
     @staticmethod
     def _parse_query(export_items: list[str]) -> str:
